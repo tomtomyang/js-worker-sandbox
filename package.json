@@ -1,0 +1,12 @@
+{
+  "name": "tomtom-sandbox",
+  "version": "1.0.0",
+  "description": "",
+  "author": "tomtomyang@tencent.com",
+  "main": "./src/core.js",
+  "scripts": {
+    "test": "node ./test/base.js"
+  },
+  "keywords": [],
+  "type": "module"
+}
