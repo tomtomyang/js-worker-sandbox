@@ -1,10 +1,10 @@
-import { TomtomSandbox } from "../src/core.js";
+import { WorkerSandbox } from "../src/core.js";
 
-const tts = new TomtomSandbox({
+const tts = new WorkerSandbox({
   script: `
 addEventListener("fetch", (event) => {
   console.log(event.request.url);
-  event.respondWith(new Response("Hello TomtomSandbox!"));
+  event.respondWith(new Response("Hello WorkerSandbox!"));
 });`,
 });
 
