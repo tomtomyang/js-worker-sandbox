@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 
 import { Request, Response, fetch } from './api.js';
 
-export class TomtomSandbox {
+export class WorkerSandbox {
   constructor({ script }) {
     this.script = script;
     this.eventEmitter = new EventEmitter();
