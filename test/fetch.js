@@ -2,8 +2,11 @@ import { WorkerSandbox } from "../src/core.js";
 
 const ws = new WorkerSandbox({
   script: `
-addEventListener("fetch", (event) => {
-  console.log(event.request.url);
+addEventListener("fetch", async (event) => {
+  const res = await fetch("https://baidu.com");
+  console.log(res.status);
+  console.log(await res.text());
+  
   event.respondWith(new Response("Hello WorkerSandbox!"));
 });`,
 });

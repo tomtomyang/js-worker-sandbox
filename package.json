@@ -8,5 +8,8 @@
     "test": "node ./test/base.js"
   },
   "keywords": [],
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
 }

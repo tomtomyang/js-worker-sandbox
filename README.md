@@ -19,7 +19,7 @@ Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码�
 ```js
 import { WorkerSandbox } from "../src/core.js";
 
-const tts = new WorkerSandbox({
+const ws = new WorkerSandbox({
   script: `
 addEventListener("fetch", (event) => {
   console.log(event.request.url);
@@ -27,9 +27,9 @@ addEventListener("fetch", (event) => {
 });`,
 });
 
-const res = await tts.dispatchFetch("http://localhost:8000/");
+const res = await ws.dispatchFetch("http://localhost:8000/");
 console.log(await res.text());
-await tts.dispose();
+await ws.dispose();
 
 ```
 
