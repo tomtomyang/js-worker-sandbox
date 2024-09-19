@@ -10,8 +10,9 @@ Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码�
 
 - 代码隔离：使用 Node.js 的 `vm` 模块在隔离的上下文中执行代码；
 
-- 事件驱动：模拟浏览器的事件处理机制，如 `fetch` 事件；
-- 调试支持：沙箱环境中包含 `console` 对象，便于开发者调试；
+- 事件驱动：实现 Worker 的 `fetch` 事件处理机制；
+- 环境模拟：模拟 Worker Runtime 的各类 API，如 `Cache`、`Web Crypto` 等；
+- 调试支持：支持 `console` 数据打印，便于开发者调试；
 
 
 ## 使用
@@ -19,7 +20,7 @@ Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码�
 ```js
 import { WorkerSandbox } from "../src/core.js";
 
-const tts = new WorkerSandbox({
+const ws = new WorkerSandbox({
   script: `
 addEventListener("fetch", (event) => {
   console.log(event.request.url);
@@ -27,9 +28,9 @@ addEventListener("fetch", (event) => {
 });`,
 });
 
-const res = await tts.dispatchFetch("http://localhost:8000/");
+const res = await ws.dispatchFetch("http://localhost:8000/");
 console.log(await res.text());
-await tts.dispose();
+await ws.dispose();
 
 ```
 
@@ -39,6 +40,6 @@ await tts.dispose();
 ### `WorkerSandbox`
 
 - **构造函数**：接受一个配置对象，其中 `script` 是要在沙箱中执行的 JavaScript 代码；
-- **dispatchFetch(url)**：模拟一个 `fetch` 事件，触发事件监听器；
+- **dispatchFetch(url, requestInit)**：模拟一个 `fetch` 事件，触发事件监听器；
 - **dispose()**：清除所有事件监听器，释放资源；
 

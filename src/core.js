@@ -1,7 +1,7 @@
 import { createContext, runInContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import { Request, Response, fetch } from './api.js';
+import { Headers, Request, Response, fetch, crypto } from './runtime/index.js';
 
 export class WorkerSandbox {
   constructor({ script }) {
@@ -10,9 +10,11 @@ export class WorkerSandbox {
 
     this.context = createContext({
       addEventListener: this.addEventListener.bind(this),
-      fetch,
-      Response,
+      Headers,
       Request,
+      Response,
+      fetch,
+      crypto,
       console, // 传递 console 到沙箱中以便调试
     });
 
@@ -28,8 +30,8 @@ export class WorkerSandbox {
     vmScript.runInContext(this.context);
   }
 
-  async dispatchFetch(url) {
-    const request = new Request(url);
+  async dispatchFetch(url, requestInit) {
+    const request = new Request(url, requestInit);
     const responsePromise = new Promise((resolve) => {
       const event = {
         request,

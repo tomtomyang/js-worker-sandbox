@@ -3,7 +3,9 @@ import { WorkerSandbox } from "../src/core.js";
 const ws = new WorkerSandbox({
   script: `
 addEventListener("fetch", (event) => {
-  console.log(event.request.url);
+  const uuid = crypto.randomUUID();
+  console.log(uuid);
+  
   event.respondWith(new Response("Hello WorkerSandbox!"));
 });`,
 });
