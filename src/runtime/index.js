@@ -4,3 +4,4 @@ export * from './response.js';
 export * from './fetch.js';
 export * from './crypto.js';
 export * from './cache.js';
+export * from './url.js';
