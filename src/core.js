@@ -1,7 +1,7 @@
 import { createContext, runInContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import { Headers, Request, Response, fetch, crypto } from './runtime/index.js';
+import { Headers, Request, Response, fetch, crypto, URL } from './runtime/index.js';
 
 export class WorkerSandbox {
   constructor({ script }) {
@@ -15,6 +15,7 @@ export class WorkerSandbox {
       Response,
       fetch,
       crypto,
+      URL,
       console, // 传递 console 到沙箱中以便调试
     });
 
