@@ -1,7 +1,17 @@
-export * from './headers.js';
-export * from './request.js';
-export * from './response.js';
-export * from './fetch.js';
-export * from './crypto.js';
-export * from './cache.js';
-export * from './url.js';
+import * as headers from './headers.js';
+import * as request from './request.js';
+import * as response from './response.js';
+import * as fetch from './fetch.js';
+import * as crypto from './crypto.js';
+// import * as cache from './cache.js';
+import * as url from './url.js';
+
+export default {
+  ...headers,
+  ...request,
+  ...response,
+  ...fetch,
+  ...crypto,
+    //...cache,
+  ...url
+};

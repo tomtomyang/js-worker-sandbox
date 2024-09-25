@@ -1,39 +1,76 @@
-import { createContext, runInContext, Script } from 'vm';
+import { readFileSync, existsSync } from 'fs';
+
+import { createContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import { Headers, Request, Response, fetch, crypto, URL } from './runtime/index.js';
+import workerContext from './runtime/index.js';
 
 export class WorkerSandbox {
-  constructor({ script }) {
-    this.script = script;
-    this.eventEmitter = new EventEmitter();
+  constructor({ script = '', scriptPath = '', context = {} }) {
+    this.script = this.loadScript(script, scriptPath);
 
-    this.context = createContext({
-      addEventListener: this.addEventListener.bind(this),
-      Headers,
-      Request,
-      Response,
-      fetch,
-      crypto,
-      URL,
-      console, // 传递 console 到沙箱中以便调试
+    this.eventEmitter = this.initEmmitter();
+    this.context = this.initContext(context);
+
+    this.initScript();
+  }
+
+  initEmmitter() {
+    return new EventEmitter();
+  }
+
+  initContext(customContext) {
+    const addEventListener = (type, listener) => {
+      if (!this.eventEmitter) {
+        return;
+      }
+
+      this.eventEmitter.on(type, listener);
+    }
+
+    return createContext({
+      ...(workerContext || {}),
+      ...(customContext || {}),
+      console,
+      addEventListener: addEventListener.bind(this),
     });
-
-    this.loadScript(script);
   }
 
-  addEventListener(type, listener) {
-    this.eventEmitter.on(type, listener);
+  loadScript(script, scriptPath) {
+    if (
+      script &&
+      typeof script ==='string' &&
+      script.length > 0
+    ) {
+      return script;
+    }
+
+    if (
+      scriptPath &&
+      typeof scriptPath ==='string' &&
+      scriptPath.length > 0 &&
+      scriptPath.endsWith('.js') &&
+      existsSync(scriptPath)
+    ) {
+      return readFileSync(scriptPath, 'utf8');
+    }
+
+    return '';
   }
 
-  loadScript(script) {
-    const vmScript = new Script(script);
+  initScript() {
+    if (!this.script || !this.context) {
+      return;
+    }
+
+    const vmScript = new Script(this.script);
+
     vmScript.runInContext(this.context);
   }
 
-  async dispatchFetch(url, requestInit) {
-    const request = new Request(url, requestInit);
-    const responsePromise = new Promise((resolve) => {
+  dispatchFetch(url, requestInit) {
+    const request = new workerContext.Request(url, requestInit);
+    const response = new Promise((resolve) => {
       const event = {
         request,
         respondWith: (response) => {
@@ -44,10 +81,13 @@ export class WorkerSandbox {
       this.eventEmitter.emit('fetch', event);
     });
 
-    return responsePromise;
+    return response;
   }
 
   dispose() {
     this.eventEmitter.removeAllListeners();
+
+    this.eventEmitter = null;
+    this.context = null;
   }
 }
