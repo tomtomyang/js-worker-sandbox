@@ -1,3 +1,3 @@
-import { URL } from "node:url";
+import { URL, URLSearchParams } from "node:url";
 
-export { URL };
+export { URL, URLSearchParams };

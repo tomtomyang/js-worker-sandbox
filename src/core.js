@@ -1,46 +1,76 @@
+import { readFileSync, existsSync } from 'fs';
+
 import { createContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import Runtime, { Request } from './runtime/index.js';
+import workerContext from './runtime/index.js';
 
 export class WorkerSandbox {
-  constructor({ script }) {
-    this.script = script;
+  constructor({ script = '', scriptPath = '', context = {} }) {
+    this.script = this.loadScript(script, scriptPath);
 
     this.eventEmitter = this.initEmmitter();
-    this.context = this.initContext();
+    this.context = this.initContext(context);
 
-    this.loadScript(script);
+    this.initScript();
   }
 
   initEmmitter() {
     return new EventEmitter();
   }
 
-  initContext() {
+  initContext(customContext) {
     const addEventListener = (type, listener) => {
       if (!this.eventEmitter) {
-        this.eventEmitter = this.initEmmitter();
+        return;
       }
 
       this.eventEmitter.on(type, listener);
     }
 
     return createContext({
-      ...Runtime,
+      ...(workerContext || {}),
+      ...(customContext || {}),
+      console,
       addEventListener: addEventListener.bind(this),
-      console, // 传递 console 到沙箱中以便调试
     });
   }
 
-  loadScript(script) {
-    const vmScript = new Script(script);
+  loadScript(script, scriptPath) {
+    if (
+      script &&
+      typeof script ==='string' &&
+      script.length > 0
+    ) {
+      return script;
+    }
+
+    if (
+      scriptPath &&
+      typeof scriptPath ==='string' &&
+      scriptPath.length > 0 &&
+      scriptPath.endsWith('.js') &&
+      existsSync(scriptPath)
+    ) {
+      return readFileSync(scriptPath, 'utf8');
+    }
+
+    return '';
+  }
+
+  initScript() {
+    if (!this.script || !this.context) {
+      return;
+    }
+
+    const vmScript = new Script(this.script);
+
     vmScript.runInContext(this.context);
   }
 
   dispatchFetch(url, requestInit) {
-    const request = new Request(url, requestInit);
-    const responsePromise = new Promise((resolve) => {
+    const request = new workerContext.Request(url, requestInit);
+    const response = new Promise((resolve) => {
       const event = {
         request,
         respondWith: (response) => {
@@ -51,10 +81,13 @@ export class WorkerSandbox {
       this.eventEmitter.emit('fetch', event);
     });
 
-    return responsePromise;
+    return response;
   }
 
   dispose() {
     this.eventEmitter.removeAllListeners();
+
+    this.eventEmitter = null;
+    this.context = null;
   }
 }

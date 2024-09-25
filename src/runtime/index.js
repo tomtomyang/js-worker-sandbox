@@ -1,27 +1,17 @@
-import { Headers } from './headers.js';
-import { Request } from './request.js';
-import { Response } from './response.js';
-import { fetch } from './fetch.js';
-import { crypto } from './crypto.js';
-// import { cache } from './cache.js';
-import { URL } from './url.js';
-
-export {
-  Headers,
-  Request,
-  Response,
-  fetch,
-  crypto,
-  // cache,
-  URL,
-};
+import * as headers from './headers.js';
+import * as request from './request.js';
+import * as response from './response.js';
+import * as fetch from './fetch.js';
+import * as crypto from './crypto.js';
+// import * as cache from './cache.js';
+import * as url from './url.js';
 
 export default {
-  Headers,
-  Request,
-  Response,
-  fetch,
-  crypto,
-  // cache,
-  URL,
+  ...headers,
+  ...request,
+  ...response,
+  ...fetch,
+  ...crypto,
+    //...cache,
+  ...url
 };
