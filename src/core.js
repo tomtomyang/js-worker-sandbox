@@ -1,29 +1,36 @@
-import { createContext, runInContext, Script } from 'vm';
+import { createContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import { Headers, Request, Response, fetch, crypto, URL } from './runtime/index.js';
+import Runtime, { Request } from './runtime/index.js';
 
 export class WorkerSandbox {
   constructor({ script }) {
     this.script = script;
-    this.eventEmitter = new EventEmitter();
 
-    this.context = createContext({
-      addEventListener: this.addEventListener.bind(this),
-      Headers,
-      Request,
-      Response,
-      fetch,
-      crypto,
-      URL,
-      console, // 传递 console 到沙箱中以便调试
-    });
+    this.eventEmitter = this.initEmmitter();
+    this.context = this.initContext();
 
     this.loadScript(script);
   }
 
-  addEventListener(type, listener) {
-    this.eventEmitter.on(type, listener);
+  initEmmitter() {
+    return new EventEmitter();
+  }
+
+  initContext() {
+    const addEventListener = (type, listener) => {
+      if (!this.eventEmitter) {
+        this.eventEmitter = this.initEmmitter();
+      }
+
+      this.eventEmitter.on(type, listener);
+    }
+
+    return createContext({
+      ...Runtime,
+      addEventListener: addEventListener.bind(this),
+      console, // 传递 console 到沙箱中以便调试
+    });
   }
 
   loadScript(script) {
@@ -31,7 +38,7 @@ export class WorkerSandbox {
     vmScript.runInContext(this.context);
   }
 
-  async dispatchFetch(url, requestInit) {
+  dispatchFetch(url, requestInit) {
     const request = new Request(url, requestInit);
     const responsePromise = new Promise((resolve) => {
       const event = {
