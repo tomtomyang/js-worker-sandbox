@@ -5,11 +5,12 @@
   "author": "tomtomyang@tencent.com",
   "main": "./src/core.js",
   "scripts": {
-    "test": "node ./test/base.js"
+    "test": "node ./example/run.js"
   },
   "keywords": [],
   "type": "module",
   "dependencies": {
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "undici": "^6.19.8"
   }
 }

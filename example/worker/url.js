@@ -10,7 +10,7 @@ async function handleRequest(request) {
   const name = params.get('name');
   console.log(name);
 
-  params.set('greeting', 'hello');
+  params.set('hello', 'world');
 
   url.pathname = '/test/';
   url.search = params.toString();
