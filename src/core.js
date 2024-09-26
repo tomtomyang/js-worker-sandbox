@@ -1,9 +1,10 @@
 import { readFileSync, existsSync } from 'fs';
+import { executionAsyncId } from 'async_hooks';
 
 import { createContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import workerContext from './runtime/index.js';
+import workerContext from './standards/index.js';
 
 export class WorkerSandbox {
   constructor({ script = '', scriptPath = '', context = {} }) {
@@ -65,17 +66,39 @@ export class WorkerSandbox {
 
     const vmScript = new Script(this.script);
 
-    vmScript.runInContext(this.context);
+    vmScript.runInContext(this.context, {
+      timeout: 5000,
+      displayErrors: true,
+      asyncResource: {
+        type: 'worker',
+        triggerAsyncId: executionAsyncId(),
+      },
+    });
   }
 
   dispatchFetch(url, requestInit) {
     const request = new workerContext.Request(url, requestInit);
-    const response = new Promise((resolve) => {
+    const response = new Promise((resolve, reject) => {
       const event = {
         request,
         respondWith: (response) => {
-          resolve(response);
-        }
+          if (response instanceof workerContext.Response) {
+            resolve(response);
+          } else if (typeof response?.then === 'function') {
+            response.then((fulfilled) => {
+              if (fulfilled instanceof workerContext.Response) {
+                resolve(fulfilled);
+              } else {
+                reject(new Error('Invalid response'));
+              }
+            }).catch(reject);
+          } else {
+            reject(new Error('Invalid response'));
+          }
+        },
+        waitUntil: (promise) => {
+          promise.then(() => {}).catch(console.error);
+        },
       };
 
       this.eventEmitter.emit('fetch', event);
