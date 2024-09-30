@@ -10,7 +10,8 @@
   "keywords": [],
   "type": "module",
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "undici": "^6.19.8"
+    "blob-polyfill": "^9.0.20240710",
+    "undici": "5.23.0",
+    "urlpattern-polyfill": "^10.0.0"
   }
 }

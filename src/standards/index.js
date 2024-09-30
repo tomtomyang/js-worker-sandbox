@@ -8,6 +8,7 @@ import * as encoder from './encoder.js';
 import * as timer from './timer.js';
 import * as stream from './stream.js';
 import * as fetch from './fetch.js';
+import * as blob from './blob.js';
 
 export default {
   ...header,
@@ -20,4 +21,5 @@ export default {
   ...timer,
   ...stream,
   ...fetch,
+  ...blob,
 };

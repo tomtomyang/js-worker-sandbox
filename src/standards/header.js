@@ -1,3 +1,3 @@
-import { Headers } from "node-fetch";
+import { Headers } from "undici";
 
 export { Headers };
