@@ -12,12 +12,12 @@ async function streamHTMLContent(writable) {
 
   console.log('start');
 
-  // await writer.write('<div>First segment</div>');
+  await writer.write(new TextEncoder().encode('<div>First segment</div>'));
   console.log('first done');
 
   await sleep();
 
-  await writer.write('<div>Second segment</div>');
+  await writer.write(new TextEncoder().encode('<div>Second segment</div>'));
   console.log('second done');
 
   await writer.close();
@@ -29,7 +29,7 @@ async function handleEvent(event) {
   streamHTMLContent(writable);
 
   const res = new Response(readable, {
-    // headers: { 'Content-Type': 'text/html' },
+    headers: { 'Content-Type': 'text/html' },
   });
 
   event.respondWith(res);

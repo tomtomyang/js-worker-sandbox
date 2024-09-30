@@ -1,3 +1,5 @@
 import { URL, URLSearchParams } from "node:url";
 
-export { URL, URLSearchParams };
+import { URLPattern } from 'urlpattern-polyfill'
+
+export { URL, URLSearchParams, URLPattern };

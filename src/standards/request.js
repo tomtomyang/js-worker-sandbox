@@ -1,3 +1,3 @@
-import { Request } from 'node-fetch';
+import { Request } from 'undici';
 
 export { Request };

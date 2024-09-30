@@ -22,7 +22,7 @@ export class WorkerVM {
   initContext() {
     const addEventListener = (type, listener) => {
       if (!this.eventEmitter) {
-        return;
+        throw new Error('Event emitter not initialized');
       }
 
       this.eventEmitter.on(type, listener);
@@ -43,7 +43,7 @@ export class WorkerVM {
 
   initScript() {
     if (!this.script || !this.context) {
-      return;
+      throw new Error('Script or context not initialized');
     }
 
     const vmScript = new Script(this.script);
