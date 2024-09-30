@@ -1,13 +1,13 @@
 import path from "path";
 import { fileURLToPath } from 'url';
 
-import { WorkerSandbox } from "../src/core.js";
+import { WorkerSandBox } from "../src/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ws = new WorkerSandbox({
-  scriptPath: path.resolve(__dirname, "./worker/stream.js"),
+const ws = new WorkerSandBox({
+  scriptPath: path.resolve(__dirname, "./worker/hook.js"),
 });
 
 const res = await ws.dispatchFetch("http://localhost:8000/");

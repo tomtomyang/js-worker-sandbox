@@ -1,26 +1,25 @@
-import { readFileSync, existsSync } from 'fs';
 import { executionAsyncId } from 'async_hooks';
 
 import { createContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import workerContext from './standards/index.js';
+import workerContext from '../standards/index.js';
 
-export class WorkerSandbox {
-  constructor({ script = '', scriptPath = '', context = {} }) {
-    this.script = this.loadScript(script, scriptPath);
+export class WorkerVM {
+  constructor({ script = '' }) {
+    this.script = script;
 
     this.eventEmitter = this.initEmmitter();
-    this.context = this.initContext(context);
+    this.context = this.initContext();
 
     this.initScript();
   }
-
+  
   initEmmitter() {
     return new EventEmitter();
   }
 
-  initContext(customContext) {
+  initContext() {
     const addEventListener = (type, listener) => {
       if (!this.eventEmitter) {
         return;
@@ -31,32 +30,15 @@ export class WorkerSandbox {
 
     return createContext({
       ...(workerContext || {}),
-      ...(customContext || {}),
       console,
       addEventListener: addEventListener.bind(this),
+    }, {
+      name: 'JS Worker Sandbox',
+      codeGeneration: {
+        strings: false,
+        wasm: true,
+      },
     });
-  }
-
-  loadScript(script, scriptPath) {
-    if (
-      script &&
-      typeof script ==='string' &&
-      script.length > 0
-    ) {
-      return script;
-    }
-
-    if (
-      scriptPath &&
-      typeof scriptPath ==='string' &&
-      scriptPath.length > 0 &&
-      scriptPath.endsWith('.js') &&
-      existsSync(scriptPath)
-    ) {
-      return readFileSync(scriptPath, 'utf8');
-    }
-
-    return '';
   }
 
   initScript() {
