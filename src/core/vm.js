@@ -3,7 +3,7 @@ import { executionAsyncId } from 'async_hooks';
 import { createContext, Script } from 'vm';
 import { EventEmitter } from 'events';
 
-import workerContext from '../standards/index.js';
+import WorkerRuntime from '../runtime/index.js';
 
 export class WorkerVM {
   constructor({ script = '' }) {
@@ -29,7 +29,7 @@ export class WorkerVM {
     }
 
     return createContext({
-      ...(workerContext || {}),
+      ...(WorkerRuntime || {}),
       console,
       addEventListener: addEventListener.bind(this),
     }, {
@@ -59,16 +59,16 @@ export class WorkerVM {
   }
 
   dispatchFetch(url, requestInit) {
-    const request = new workerContext.Request(url, requestInit);
+    const request = new WorkerRuntime.Request(url, requestInit);
     const response = new Promise((resolve, reject) => {
       const event = {
         request,
         respondWith: (response) => {
-          if (response instanceof workerContext.Response) {
+          if (response instanceof WorkerRuntime.Response) {
             resolve(response);
           } else if (typeof response?.then === 'function') {
             response.then((fulfilled) => {
-              if (fulfilled instanceof workerContext.Response) {
+              if (fulfilled instanceof WorkerRuntime.Response) {
                 resolve(fulfilled);
               } else {
                 reject(new Error('Invalid response'));
