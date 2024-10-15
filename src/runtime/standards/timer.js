@@ -28,6 +28,4 @@ const clearIntervalProxy = new Proxy(clearInterval, {
   },
 })
 
-
-
 export { setTimeoutProxy as setTimeout, setIntervalProxy as setInterval, clearTimeoutProxy as clearTimeout, clearIntervalProxy as clearInterval };
