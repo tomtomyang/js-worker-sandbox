@@ -11,7 +11,7 @@ Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码�
 - 代码隔离：使用 Node.js 的 `vm` 模块在隔离的上下文中执行代码；
 
 - 事件驱动：实现 Worker 的 `fetch` 事件处理机制；
-- 环境模拟：模拟 Worker Runtime 的各类 API，如 `Cache`、`Web Crypto` 等；
+- 环境模拟：模拟 Worker Runtime 的各类 API；
 - 调试支持：支持 `console` 数据打印，便于开发者调试；
 
 
