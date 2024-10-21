@@ -1,4 +1,4 @@
-# 构建一个 JS Worker 执行沙箱
+# 轻量 JS Worker 执行沙箱
 
 
 Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码，这为代码执行提供了一个隔离的环境，也就是所谓的“沙箱”。在进行指定代码的安全研究或测试时，经常需要评估代码片段的行为而不希望其对主系统造成影响。`vm` 模块恰好提供了这样的理想环境，用于观察和分析代码行为。
@@ -18,7 +18,7 @@ Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码�
 ## 使用
 
 ```js
-import { WorkerSandbox } from "../src/core.js";
+import { WorkerSandbox } from "js-worker-sandbox";
 
 const ws = new WorkerSandbox({
   script: `
