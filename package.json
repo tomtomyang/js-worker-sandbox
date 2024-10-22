@@ -4,13 +4,16 @@
   "description": "Lightweight JS Worker Execution Sandbox",
   "author": "tomtomyang@tencent.com",
   "main": "./src/index.js",
-  "files": [ "src" ],
+  "files": [
+    "src"
+  ],
   "keywords": [
     "javascript",
     "worker",
     "sandbox"
   ],
   "scripts": {
+    "build": "rimraf dist && tsc --rootDir src --outDir dist",
     "test": "node ./example/run.js"
   },
   "dependencies": {
@@ -18,5 +21,15 @@
     "undici": "5.23.0",
     "urlpattern-polyfill": "^10.0.0"
   },
-  "type": "module"
+  "devDependencies": {
+    "@types/node": "^22.7.8",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.2"
+  }
 }

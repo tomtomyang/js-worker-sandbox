@@ -7,7 +7,7 @@ import {
   TransformStream,
   WritableStream,
   WritableStreamDefaultWriter,
-} from 'node:stream/web'
+} from 'node:stream/web';
 
 export {
   ReadableStream,

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WritableStreamDefaultWriter = exports.TextEncoderStream = exports.TextDecoderStream = exports.ReadableStreamDefaultReader = exports.ReadableStreamBYOBReader = exports.TransformStream = exports.WritableStream = exports.ReadableStream = void 0;
+const web_1 = require("node:stream/web");
+Object.defineProperty(exports, "ReadableStream", { enumerable: true, get: function () { return web_1.ReadableStream; } });
+Object.defineProperty(exports, "ReadableStreamBYOBReader", { enumerable: true, get: function () { return web_1.ReadableStreamBYOBReader; } });
+Object.defineProperty(exports, "ReadableStreamDefaultReader", { enumerable: true, get: function () { return web_1.ReadableStreamDefaultReader; } });
+Object.defineProperty(exports, "TextDecoderStream", { enumerable: true, get: function () { return web_1.TextDecoderStream; } });
+Object.defineProperty(exports, "TextEncoderStream", { enumerable: true, get: function () { return web_1.TextEncoderStream; } });
+Object.defineProperty(exports, "TransformStream", { enumerable: true, get: function () { return web_1.TransformStream; } });
+Object.defineProperty(exports, "WritableStream", { enumerable: true, get: function () { return web_1.WritableStream; } });
+Object.defineProperty(exports, "WritableStreamDefaultWriter", { enumerable: true, get: function () { return web_1.WritableStreamDefaultWriter; } });

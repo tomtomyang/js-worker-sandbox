@@ -1,16 +1,16 @@
-import path from "path";
-import { fileURLToPath } from 'url';
+const path = require("path");
 
-import { WorkerSandBox } from "../src/index.js";
+const { WorkerSandBox } = require("../dist/index.js");
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+async function run() {
+  const ws = new WorkerSandBox({
+    scriptPath: path.resolve(__dirname, "./worker/react.js"),
+  });
+  
+  const res = await ws.dispatchFetch("http://localhost:8000/");
+  
+  console.log(await res.text());
+  await ws.dispose();
+}
 
-const ws = new WorkerSandBox({
-  scriptPath: path.resolve(__dirname, "./worker/react.js"),
-});
-
-const res = await ws.dispatchFetch("http://localhost:8000/");
-
-console.log(await res.text());
-await ws.dispose();
+run();
