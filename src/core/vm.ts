@@ -1,11 +1,13 @@
-import { executionAsyncId } from 'async_hooks';
-
-import { createContext, Script } from 'vm';
+import { createContext, Script, Context } from 'vm';
 import { EventEmitter } from 'events';
 
 import WorkerRuntime from '../runtime/index.js';
 
 export class WorkerVM {
+  script: string;
+  eventEmitter: EventEmitter<[never]>;
+  context: Context;
+
   constructor({ script = '' }) {
     this.script = script;
 
@@ -14,31 +16,37 @@ export class WorkerVM {
 
     this.initScript();
   }
-  
+
   initEmmitter() {
     return new EventEmitter();
   }
 
   initContext() {
-    const addEventListener = (type, listener) => {
+    const addEventListener = (
+      type: string,
+      listener: (...args: any[]) => void,
+    ) => {
       if (!this.eventEmitter) {
         throw new Error('Event emitter not initialized');
       }
 
       this.eventEmitter.on(type, listener);
-    }
+    };
 
-    return createContext({
-      ...(WorkerRuntime || {}),
-      console,
-      addEventListener: addEventListener.bind(this),
-    }, {
-      name: 'JS Worker Sandbox',
-      codeGeneration: {
-        strings: false,
-        wasm: true,
+    return createContext(
+      {
+        ...(WorkerRuntime || {}),
+        console,
+        addEventListener: addEventListener.bind(this),
       },
-    });
+      {
+        name: 'JS Worker Sandbox',
+        codeGeneration: {
+          strings: false,
+          wasm: true,
+        },
+      },
+    );
   }
 
   initScript() {
@@ -51,34 +59,34 @@ export class WorkerVM {
     vmScript.runInContext(this.context, {
       timeout: 5000,
       displayErrors: true,
-      asyncResource: {
-        type: 'worker',
-        triggerAsyncId: executionAsyncId(),
-      },
     });
   }
 
-  dispatchFetch(url, requestInit) {
+  dispatchFetch(url: string, requestInit: any) {
     const request = new WorkerRuntime.Request(url, requestInit);
     const response = new Promise((resolve, reject) => {
       const event = {
         request,
-        respondWith: (response) => {
+        respondWith: (response: Response | Promise<Response>) => {
           if (response instanceof WorkerRuntime.Response) {
             resolve(response);
-          } else if (typeof response?.then === 'function') {
-            response.then((fulfilled) => {
-              if (fulfilled instanceof WorkerRuntime.Response) {
-                resolve(fulfilled);
-              } else {
-                reject(new Error('Invalid response'));
-              }
-            }).catch(reject);
+          } else if (
+            typeof (response as Promise<Response>)?.then === 'function'
+          ) {
+            (response as Promise<Response>)
+              .then((fulfilled) => {
+                if (fulfilled instanceof WorkerRuntime.Response) {
+                  resolve(fulfilled);
+                } else {
+                  reject(new Error('Invalid response'));
+                }
+              })
+              .catch(reject);
           } else {
             reject(new Error('Invalid response'));
           }
         },
-        waitUntil: (promise) => {
+        waitUntil: (promise: Promise<any>) => {
           promise.then(() => {}).catch(console.error);
         },
       };
@@ -91,8 +99,6 @@ export class WorkerVM {
 
   dispose() {
     this.eventEmitter.removeAllListeners();
-
-    this.eventEmitter = null;
-    this.context = null;
+    this.context = {};
   }
 }
