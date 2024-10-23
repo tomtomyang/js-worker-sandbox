@@ -10,7 +10,7 @@ async function run() {
   const res = await ws.dispatchFetch("http://localhost:8000/");
   
   console.log(await res.text());
-  await ws.dispose();
+  ws.dispose();
 }
 
 run();
