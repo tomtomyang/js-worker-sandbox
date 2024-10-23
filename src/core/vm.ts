@@ -1,12 +1,16 @@
 import { createContext, Script, Context } from 'vm';
 import { EventEmitter } from 'events';
 
-import WorkerRuntime from '../runtime/index.js';
+import WorkerRuntime, {
+  Request,
+  Response,
+  RequestInit,
+} from '../runtime/index';
 
 export class WorkerVM {
-  script: string;
-  eventEmitter: EventEmitter<[never]>;
-  context: Context;
+  private script: string;
+  private eventEmitter: EventEmitter<[never]>;
+  private context: Context;
 
   constructor({ script = '' }) {
     this.script = script;
@@ -62,20 +66,20 @@ export class WorkerVM {
     });
   }
 
-  dispatchFetch(url: string, requestInit: any) {
-    const request = new WorkerRuntime.Request(url, requestInit);
-    const response = new Promise((resolve, reject) => {
+  dispatchFetch(url: string, requestInit?: RequestInit) {
+    const request = new Request(url, requestInit);
+    const response = new Promise<Response>((resolve, reject) => {
       const event = {
         request,
         respondWith: (response: Response | Promise<Response>) => {
-          if (response instanceof WorkerRuntime.Response) {
+          if (response instanceof Response) {
             resolve(response);
           } else if (
             typeof (response as Promise<Response>)?.then === 'function'
           ) {
             (response as Promise<Response>)
               .then((fulfilled) => {
-                if (fulfilled instanceof WorkerRuntime.Response) {
+                if (fulfilled instanceof Response) {
                   resolve(fulfilled);
                 } else {
                   reject(new Error('Invalid response'));

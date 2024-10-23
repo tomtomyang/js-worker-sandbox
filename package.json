@@ -1,20 +1,22 @@
 {
   "name": "js-worker-sandbox",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Lightweight JS Worker Execution Sandbox",
   "author": "tomtomyang@tencent.com",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "src"
+    "dist"
   ],
   "keywords": [
+    "typescript",
     "javascript",
     "worker",
     "sandbox"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc --rootDir src --outDir dist",
-    "test": "node ./example/run.js"
+    "build": "rimraf ./dist && tsc --rootDir ./src --outDir ./dist",
+    "e2e": "node ./e2e/run.js && ts-node ./e2e/run.ts"
   },
   "dependencies": {
     "blob-polyfill": "^9.0.20240710",
@@ -30,6 +32,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.0",
     "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
   }
 }
