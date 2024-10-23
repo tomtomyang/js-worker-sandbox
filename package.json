@@ -1,12 +1,15 @@
 {
   "name": "js-worker-sandbox",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Lightweight JS Worker Execution Sandbox",
   "author": "tomtomyang@tencent.com",
+  "license": "UNLICENSED",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "README.zh-CN.md"
   ],
   "keywords": [
     "typescript",
@@ -34,5 +37,12 @@
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomtomyang/js-worker-sandbox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tomtomyang/js-worker-sandbox/issues"
   }
 }
