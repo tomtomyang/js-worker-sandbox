@@ -22,10 +22,10 @@ npm i js-worker-sandbox -D
 ## Usage
 
 ```js
-const { WorkerSandBox } = require("js-worker-sandbox");
+const { WorkerSandbox } = require("js-worker-sandbox");
 
 async function run() {
-  const ws = new WorkerSandBox({
+  const ws = new WorkerSandbox({
     script: `
 addEventListener("fetch", (event) => {
   console.log(event.request.url);
@@ -43,10 +43,10 @@ run();
 ```
 
 ```ts
-import { WorkerSandBox } from "js-worker-sandbox";
+import { WorkerSandbox } from "js-worker-sandbox";
 
 async function run() {
-  const ws = new WorkerSandBox({
+  const ws = new WorkerSandbox({
     script: `
 addEventListener("fetch", (event) => {
   console.log(event.request.url);

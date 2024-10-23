@@ -1,8 +1,8 @@
 import path from "path";
-import { WorkerSandBox } from "../dist/index.js";
+import { WorkerSandbox } from "../dist/index.js";
 
 async function run() {
-  const ws = new WorkerSandBox({
+  const ws = new WorkerSandbox({
     scriptPath: path.resolve(__dirname, "./worker/react.js"),
   });
   
