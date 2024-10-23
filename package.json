@@ -1,19 +1,21 @@
 {
   "name": "js-worker-sandbox",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Lightweight JS Worker Execution Sandbox",
   "author": "tomtomyang@tencent.com",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "src"
+    "dist"
   ],
   "keywords": [
+    "typescript",
     "javascript",
     "worker",
     "sandbox"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc --rootDir src --outDir dist",
+    "build": "rimraf ./dist && tsc --rootDir ./src --outDir ./dist",
     "e2e": "node ./e2e/run.js && ts-node ./e2e/run.ts"
   },
   "dependencies": {
