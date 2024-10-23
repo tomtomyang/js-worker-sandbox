@@ -1,9 +1,8 @@
 const path = require("path");
-
-const { WorkerSandBox } = require("../dist/index.js");
+const { WorkerSandbox } = require("../dist/index.js");
 
 async function run() {
-  const ws = new WorkerSandBox({
+  const ws = new WorkerSandbox({
     scriptPath: path.resolve(__dirname, "./worker/react.js"),
   });
   

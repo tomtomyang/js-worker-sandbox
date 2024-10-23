@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'fs';
 
 import { WorkerVM } from './vm';
 
-function loadScript(script: string, scriptPath: string) {
+function handleScript(script: string, scriptPath: string) {
   if (script && typeof script === 'string' && script.length > 0) {
     return script;
   }
@@ -20,10 +20,10 @@ function loadScript(script: string, scriptPath: string) {
   return '';
 }
 
-export class WorkerSandBox extends WorkerVM {
+export class WorkerSandbox extends WorkerVM {
   constructor({ script = '', scriptPath = '' }) {
     const vmInitOptions = {
-      script: loadScript(script, scriptPath),
+      script: handleScript(script, scriptPath),
     };
 
     super(vmInitOptions);
