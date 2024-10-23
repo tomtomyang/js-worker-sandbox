@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'fs';
 
-import { WorkerVM } from './vm.js';
+import { WorkerVM } from './vm';
 
 function loadScript(script: string, scriptPath: string) {
   if (script && typeof script === 'string' && script.length > 0) {

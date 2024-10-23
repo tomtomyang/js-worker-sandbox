@@ -1,8 +1,18 @@
+export * from './header';
+export * from './request';
+export * from './response';
+export * from './crypto';
+export * from './url';
+export * from './encoder';
+export * from './timer';
+export * from './stream';
+export * from './fetch';
+export * from './blob';
+
 import * as header from './header';
 import * as request from './request';
 import * as response from './response';
 import * as crypto from './crypto';
-// import * as cache from './cache';
 import * as url from './url';
 import * as encoder from './encoder';
 import * as timer from './timer';
@@ -15,7 +25,6 @@ export default {
   ...request,
   ...response,
   ...crypto,
-  //...cache,
   ...url,
   ...encoder,
   ...timer,

@@ -1,3 +1,3 @@
-import { webcrypto } from 'node:crypto'
+import { webcrypto } from 'node:crypto';
 
 export const crypto = webcrypto;

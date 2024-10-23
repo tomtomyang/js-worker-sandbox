@@ -14,8 +14,8 @@ module.exports = {
   ignorePatterns: [
     '.eslintrc.js',
     'node_modules',
-    'test',
     'dist',
+    'e2e',
   ],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
@@ -23,5 +23,6 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off'
   },
 };
