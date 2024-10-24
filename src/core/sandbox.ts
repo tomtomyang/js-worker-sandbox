@@ -21,7 +21,7 @@ function handleScript(script: string, scriptPath: string) {
 }
 
 export class WorkerSandbox extends WorkerVM {
-  constructor({ script = '', scriptPath = '' }) {
+  constructor({ script = '', scriptPath = '' } = {}) {
     const vmInitOptions = {
       script: handleScript(script, scriptPath),
     };
