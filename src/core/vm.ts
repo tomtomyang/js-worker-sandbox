@@ -1,111 +1,34 @@
-import { createContext, Script, Context } from 'vm';
-import { EventEmitter } from 'events';
+import { createContext, Script, Context, RunningScriptOptions } from 'vm';
 
-import WorkerRuntime, {
-  Request,
-  Response,
-  RequestInit,
-} from '../runtime/index';
+import WorkerRuntime from '../runtime/index';
 
 export type { Context };
 
+export interface VMOptions {
+  extend?: (context: Context) => Context;
+}
+
 export class WorkerVM {
-  public context: Context;
-  private script: string;
-  private eventEmitter: EventEmitter<[never]>;
+  public readonly context: Context;
 
-  constructor({ script = '' }) {
-    this.script = script;
+  constructor(vmOptions: VMOptions = {}) {
+    let context = {
+      ...(WorkerRuntime || {}),
+    } as Context;
 
-    this.eventEmitter = this.initEmmitter();
-    this.context = this.initContext();
+    context = vmOptions?.extend?.(context) ?? context;
 
-    this.initScript();
-  }
-
-  private initEmmitter() {
-    return new EventEmitter();
-  }
-
-  private initContext() {
-    const addEventListener = (
-      type: string,
-      listener: (...args: any[]) => void,
-    ) => {
-      if (!this.eventEmitter) {
-        this.eventEmitter = this.initEmmitter();
-      }
-
-      this.eventEmitter.on(type, listener);
-    };
-
-    return createContext(
-      {
-        ...(WorkerRuntime || {}),
-        console,
-        addEventListener: addEventListener.bind(this),
+    this.context = createContext(context, {
+      name: 'JS Worker Sandbox',
+      codeGeneration: {
+        strings: false,
+        wasm: true,
       },
-      {
-        name: 'JS Worker Sandbox',
-        codeGeneration: {
-          strings: false,
-          wasm: true,
-        },
-      },
-    );
-  }
-
-  private initScript() {
-    if (!this.context) {
-      this.context = this.initContext();
-    }
-
-    const vmScript = new Script(this.script);
-
-    vmScript.runInContext(this.context, {
-      timeout: 5000,
-      displayErrors: true,
     });
   }
 
-  dispatchFetch(url: string, requestInit?: RequestInit) {
-    const request = new Request(url, requestInit);
-    const response = new Promise<Response>((resolve, reject) => {
-      const event = {
-        request,
-        respondWith: (response: Response | Promise<Response>) => {
-          if (response instanceof Response) {
-            resolve(response);
-          } else if (
-            typeof (response as Promise<Response>)?.then === 'function'
-          ) {
-            (response as Promise<Response>)
-              .then((fulfilled) => {
-                if (fulfilled instanceof Response) {
-                  resolve(fulfilled);
-                } else {
-                  reject(new Error('Invalid response'));
-                }
-              })
-              .catch(reject);
-          } else {
-            reject(new Error('Invalid response'));
-          }
-        },
-        waitUntil: (promise: Promise<any>) => {
-          promise.then(() => {}).catch(console.error);
-        },
-        passThroughOnException: () => {},
-      };
-
-      this.eventEmitter.emit('fetch', event);
-    });
-
-    return response;
-  }
-
-  dispose() {
-    this.eventEmitter.removeAllListeners();
-    this.context = {};
+  public evaluate<T = any>(script: string, options?: RunningScriptOptions): T {
+    const vmScript = new Script(script);
+    return vmScript.runInContext(this.context, options);
   }
 }
