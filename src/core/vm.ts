@@ -7,10 +7,12 @@ import WorkerRuntime, {
   RequestInit,
 } from '../runtime/index';
 
+export type { Context };
+
 export class WorkerVM {
+  public context: Context;
   private script: string;
   private eventEmitter: EventEmitter<[never]>;
-  private context: Context;
 
   constructor({ script = '' }) {
     this.script = script;
@@ -21,17 +23,17 @@ export class WorkerVM {
     this.initScript();
   }
 
-  initEmmitter() {
+  private initEmmitter() {
     return new EventEmitter();
   }
 
-  initContext() {
+  private initContext() {
     const addEventListener = (
       type: string,
       listener: (...args: any[]) => void,
     ) => {
       if (!this.eventEmitter) {
-        throw new Error('Event emitter not initialized');
+        this.eventEmitter = this.initEmmitter();
       }
 
       this.eventEmitter.on(type, listener);
@@ -53,9 +55,9 @@ export class WorkerVM {
     );
   }
 
-  initScript() {
-    if (!this.script || !this.context) {
-      throw new Error('Script or context not initialized');
+  private initScript() {
+    if (!this.context) {
+      this.context = this.initContext();
     }
 
     const vmScript = new Script(this.script);
@@ -93,6 +95,7 @@ export class WorkerVM {
         waitUntil: (promise: Promise<any>) => {
           promise.then(() => {}).catch(console.error);
         },
+        passThroughOnException: () => {},
       };
 
       this.eventEmitter.emit('fetch', event);
