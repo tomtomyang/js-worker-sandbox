@@ -36,7 +36,7 @@ export class WorkerSandbox extends WorkerVM {
     this.script = this.initScript(script, scriptPath);
 
     if (this.script) {
-      this.evaluate(this.script);
+      this.evaluate(this.script, { timeout: 10000, displayErrors: true });
     }
   }
 
