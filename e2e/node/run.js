@@ -1,5 +1,5 @@
 const path = require("path");
-const { WorkerSandbox } = require("../dist/index.js");
+const { WorkerSandbox } = require("../../dist/index.js");
 
 async function run() {
   const ws = new WorkerSandbox({

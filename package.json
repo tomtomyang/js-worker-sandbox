@@ -6,6 +6,13 @@
   "license": "UNLICENSED",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "browser": "./dist/browser/index.js",
+      "node": "./dist/node/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "files": [
     "dist",
     "README.md",
@@ -19,7 +26,7 @@
   ],
   "scripts": {
     "build": "rimraf ./dist && tsc --rootDir ./src --outDir ./dist",
-    "e2e": "node ./e2e/run.js && ts-node ./e2e/run.ts",
+    "e2e:node": "node ./e2e/node/run.js && ts-node ./e2e/node/run.ts",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

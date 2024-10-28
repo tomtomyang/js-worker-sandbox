@@ -1,5 +1,5 @@
 import path from "path";
-import { WorkerSandbox } from "../dist/index.js";
+import { WorkerSandbox } from "../../dist/index.js";
 
 async function run() {
   const ws = new WorkerSandbox({
