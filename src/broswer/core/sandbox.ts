@@ -1,72 +1,74 @@
-export interface BrowserSandboxOptions {
-  script?: string;
-  scriptUrl?: string;
-  extend?: (context: any) => any;
-}
+import { WorkerVM } from './vm';
 
-export class BrowserWorkerSandbox {
-  private worker: Worker;
-  private script: string;
-  private eventListeners: Map<string, Set<(event: any) => void>>;
+export const createWorkerCode = (userScript: string) => `
+  async function serializeResponse(response) {
+    return {
+      body: await response.text(),
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      type: response.type,
+      url: response.url
+    };
+  }
 
-  constructor(sandboxOptions: BrowserSandboxOptions = {}) {
-    const { script, extend } = sandboxOptions;
+  class FetchEvent extends CustomEvent {
+    constructor(request) {
+      super('fetch', {
+        detail: { request },
+      });
+    }
 
-    this.eventListeners = new Map();
-    this.script = this.initScript(script);
-
-    const workerCode = `
-      ${this.script}
-
-      self.addEventListener = (type, listener) => {
-        self.addEventListener(type, listener);
-      };
-
-      self.onmessage = (event) => {
-        if (event.data.type === 'fetch') {
-          const fetchEvent = {
-            request: event.data.request,
-            respondWith: (response) => {
-              self.postMessage({ type: 'fetchResponse', response });
-            },
-            waitUntil: (promise) => {
-              promise.then(() => {}).catch(console.error);
-            },
-            passThroughOnException: () => {}
-          };
-          self.dispatchEvent(new Event('fetch', fetchEvent));
-        }
-      };
-    `;
-
-    const blob = new Blob([workerCode], { type: 'application/javascript' });
-    this.worker = new Worker(URL.createObjectURL(blob));
-
-    this.worker.onmessage = (event) => {
-      if (event.data.type === 'fetchResponse') {
-        const listeners = this.eventListeners.get('fetch') || new Set();
-        listeners.forEach((listener) => listener(event.data.response));
-      }
+    async respondWith(response) {
+      const serializedResponse = await serializeResponse(response);
+      self.postMessage({ 
+        type: 'workerResponse', 
+        data: serializedResponse 
+      });
     };
 
-    if (extend) {
-      const extendedContext = extend({});
-      Object.keys(extendedContext).forEach((key) => {
-        this.worker.postMessage({
-          type: 'extend',
-          key,
-          value: extendedContext[key],
-        });
-      });
+    waitUntil(promise) {
+      promise.then(() => {}).catch(console.error);
+    };
+
+    passThroughOnException() {};
+
+    get request() {
+      return this.detail.request;
     }
   }
 
-  private initScript(script?: string): string {
-    if (script && typeof script === 'string' && script.length > 0) {
-      return script;
-    }
+  ${userScript}
 
-    return '';
+  self.onmessage = (event) => {
+    if (event.data.type === 'workerRequest') {
+      const { url, requestInit } = event.data?.request || {};
+      const request = new Request(url, requestInit);
+
+      const fetchEvent = new FetchEvent(request);
+      self.dispatchEvent(fetchEvent);
+    }
+  };
+`;
+
+export interface SandboxOptions {
+  script?: string;
+}
+
+export class WorkerSandbox extends WorkerVM {
+  private script: string;
+
+  constructor(sandboxOptions: SandboxOptions = {}) {
+    const { script = '' } = sandboxOptions;
+
+    super();
+
+    this.script = script;
+
+    if (this.script) {
+      const workerCode = createWorkerCode(this.script);
+      this.evaluate(workerCode);
+    }
   }
 
   public async dispatchFetch(
@@ -74,25 +76,23 @@ export class BrowserWorkerSandbox {
     requestInit?: RequestInit,
   ): Promise<Response> {
     return new Promise((resolve) => {
-      const fetchListener = (response: Response) => {
+      const responseHandler = (responseData: any) => {
+        const { body, status, statusText, headers } = responseData;
+        const response = new Response(body, {
+          status,
+          statusText,
+          headers: new Headers(headers),
+        });
         resolve(response);
-        const listeners = this.eventListeners.get('fetch') || new Set();
-        listeners.delete(fetchListener);
+        this.removeMessageHandler('workerResponse', responseHandler);
       };
 
-      const listeners = this.eventListeners.get('fetch') || new Set();
-      listeners.add(fetchListener);
-      this.eventListeners.set('fetch', listeners);
+      this.addMessageHandler('workerResponse', responseHandler);
 
       this.worker.postMessage({
-        type: 'fetch',
-        request: { url, ...requestInit },
+        type: 'workerRequest',
+        request: { url, requestInit },
       });
     });
-  }
-
-  public dispose() {
-    this.worker.terminate();
-    this.eventListeners.clear();
   }
 }
