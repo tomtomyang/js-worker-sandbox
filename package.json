@@ -1,6 +1,6 @@
 {
   "name": "js-worker-sandbox",
-  "version": "2.4.0",
+  "version": "3.0.0",
   "description": "Lightweight JS Worker Execution Sandbox",
   "author": "tomtomyang@tencent.com",
   "license": "UNLICENSED",

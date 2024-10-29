@@ -22,6 +22,8 @@ npm i js-worker-sandbox -D
 
 ## 使用
 
+### Node.js
+
 ```js
 const { WorkerSandbox } = require("js-worker-sandbox");
 
@@ -41,11 +43,10 @@ addEventListener("fetch", (event) => {
 }
 
 run();
-
 ```
 
 ```ts
-import { WorkerSandbox } from "js-worker-sandbox";
+const { WorkerSandbox } = require("js-worker-sandbox");
 
 async function run() {
   const ws = new WorkerSandbox({
@@ -63,9 +64,51 @@ addEventListener("fetch", (event) => {
 }
 
 run();
-
 ```
 
+### Browser
+
+```js
+import { WorkerSandbox } from "js-worker-sandbox/broswer";
+
+async function run() {
+  const ws = new WorkerSandbox({
+    script: `
+addEventListener("fetch", (event) => {
+  console.log(event.request.url);
+  event.respondWith(new Response("Hello WorkerSandbox!"));
+});`,
+  });
+  
+  const res = await ws.dispatchFetch("http://localhost:8000/");
+  
+  console.log(await res.text());
+  ws.dispose();
+}
+
+run();
+```
+
+```ts
+import { WorkerSandbox } from "js-worker-sandbox/broswer";
+
+async function run() {
+  const ws = new WorkerSandbox({
+    script: `
+addEventListener("fetch", (event) => {
+  console.log(event.request.url);
+  event.respondWith(new Response("Hello WorkerSandbox!"));
+});`,
+  });
+  
+  const res = await ws.dispatchFetch("http://localhost:8000/");
+  
+  console.log(await res.text());
+  ws.dispose();
+}
+
+run();
+```
 
 ## API
 

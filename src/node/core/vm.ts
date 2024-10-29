@@ -63,7 +63,7 @@ export interface VMOptions {
 }
 
 export class WorkerVM {
-  public readonly context: Context;
+  public readonly context: VMContext;
 
   constructor(vmOptions: VMOptions = {}) {
     let context = {

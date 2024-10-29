@@ -1,73 +1,43 @@
-import { WorkerVM } from './vm';
-
-export const createWorkerCode = (userScript: string) => `
-  async function serializeResponse(response) {
-    return {
-      body: await response.text(),
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries()),
-      type: response.type,
-      url: response.url
-    };
-  }
-
-  class FetchEvent extends CustomEvent {
-    constructor(request) {
-      super('fetch', {
-        detail: { request },
-      });
-    }
-
-    async respondWith(response) {
-      const serializedResponse = await serializeResponse(response);
-      self.postMessage({ 
-        type: 'workerResponse', 
-        data: serializedResponse 
-      });
-    };
-
-    waitUntil(promise) {
-      promise.then(() => {}).catch(console.error);
-    };
-
-    passThroughOnException() {};
-
-    get request() {
-      return this.detail.request;
-    }
-  }
-
-  ${userScript}
-
-  self.onmessage = (event) => {
-    if (event.data.type === 'workerRequest') {
-      const { url, requestInit } = event.data?.request || {};
-      const request = new Request(url, requestInit);
-
-      const fetchEvent = new FetchEvent(request);
-      self.dispatchEvent(fetchEvent);
-    }
-  };
-`;
+import { VMContext, WorkerVM } from './vm';
 
 export interface SandboxOptions {
   script?: string;
+  extend?: (context: VMContext) => VMContext;
 }
 
 export class WorkerSandbox extends WorkerVM {
-  private script: string;
+  private eventEmitter: Map<string, Array<(...args: any[]) => void>>;
+  private script?: string;
 
   constructor(sandboxOptions: SandboxOptions = {}) {
-    const { script = '' } = sandboxOptions;
+    const { script } = sandboxOptions;
 
-    super();
+    const eventEmitter = new Map<string, Array<(...args: any[]) => void>>();
 
+    const addEventListener = (
+      type: string,
+      listener: (...args: any[]) => void,
+    ) => {
+      const listeners = eventEmitter.get(type) || [];
+      listeners.push(listener);
+      eventEmitter.set(type, listeners);
+    };
+
+    super({
+      extend: (context) => {
+        return {
+          ...context,
+          console,
+          addEventListener,
+        };
+      },
+    });
+
+    this.eventEmitter = eventEmitter;
     this.script = script;
 
     if (this.script) {
-      const workerCode = createWorkerCode(this.script);
-      this.evaluate(workerCode);
+      this.evaluate(this.script);
     }
   }
 
@@ -75,24 +45,45 @@ export class WorkerSandbox extends WorkerVM {
     url: string,
     requestInit?: RequestInit,
   ): Promise<Response> {
-    return new Promise((resolve) => {
-      const responseHandler = (responseData: any) => {
-        const { body, status, statusText, headers } = responseData;
-        const response = new Response(body, {
-          status,
-          statusText,
-          headers: new Headers(headers),
-        });
-        resolve(response);
-        this.removeMessageHandler('workerResponse', responseHandler);
+    const request = new Request(url, requestInit);
+
+    const response = new Promise<Response>((resolve, reject) => {
+      const fetchListeners = this.eventEmitter.get('fetch') || [];
+
+      const event = {
+        request,
+        respondWith: (response: Response | Promise<Response>) => {
+          Promise.resolve(response)
+            .then((r) => {
+              if (r instanceof Response) {
+                resolve(r);
+              } else {
+                reject(new Error('Invalid response'));
+              }
+            })
+            .catch(reject);
+        },
+        waitUntil: (promise: Promise<any>) => {
+          promise.catch(console.error);
+        },
+        passThroughOnException: () => {},
       };
 
-      this.addMessageHandler('workerResponse', responseHandler);
-
-      this.worker.postMessage({
-        type: 'workerRequest',
-        request: { url, requestInit },
+      // 触发所有的 fetch 监听器
+      fetchListeners.forEach((listener) => {
+        try {
+          listener(event);
+        } catch (err) {
+          reject(err);
+        }
       });
     });
+
+    return response;
+  }
+
+  public dispose(): void {
+    this.eventEmitter.clear();
+    super.destroy();
   }
 }

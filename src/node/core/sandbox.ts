@@ -1,13 +1,13 @@
 import { readFileSync, existsSync } from 'fs';
 import { EventEmitter } from 'events';
 
-import { WorkerVM, Context } from './vm';
+import { WorkerVM, VMContext } from './vm';
 import { Request, Response, RequestInit } from '../runtime/index';
 
 export interface SandboxOptions {
   script?: string;
   scriptPath?: string;
-  extend?: (context: Context) => Context;
+  extend?: (context: VMContext) => VMContext;
 }
 
 export class WorkerSandbox extends WorkerVM {
@@ -64,23 +64,15 @@ export class WorkerSandbox extends WorkerVM {
       const event = {
         request,
         respondWith: (response: Response | Promise<Response>) => {
-          if (response instanceof Response) {
-            resolve(response);
-          } else if (
-            typeof (response as Promise<Response>)?.then === 'function'
-          ) {
-            (response as Promise<Response>)
-              .then((fulfilled) => {
-                if (fulfilled instanceof Response) {
-                  resolve(fulfilled);
-                } else {
-                  reject(new Error('Invalid response'));
-                }
-              })
-              .catch(reject);
-          } else {
-            reject(new Error('Invalid response'));
-          }
+          Promise.resolve(response)
+            .then((r) => {
+              if (r instanceof Response) {
+                resolve(r);
+              } else {
+                reject(new Error('Invalid response'));
+              }
+            })
+            .catch(reject);
         },
         waitUntil: (promise: Promise<any>) => {
           promise.then(() => {}).catch(console.error);
