@@ -4,6 +4,8 @@
 
 Node.js 的 `vm` 模块允许我们在 V8 的上下文中编译和运行代码，这为代码执行提供了一个隔离的环境，也就是所谓的“沙箱”。在进行指定代码的安全研究或测试时，经常需要评估代码片段的行为而不希望其对主系统造成影响。`vm` 模块恰好提供了这样的理想环境，可以用于观察和分析代码行为。
 
+> 注意：从 3.0.0 版本开始，WorkerSandbox 支持浏览器环境。该特性目前仍处于试验阶段，暂时基于 `iframe` 实现。
+
 ## 概述
 
 本项目使用 `vm` 模块来创建一个 JavaScript Worker 执行沙箱，实现了以下特性：
@@ -69,7 +71,7 @@ run();
 ### Browser
 
 ```js
-import { WorkerSandbox } from "js-worker-sandbox/broswer";
+import { WorkerSandbox } from "js-worker-sandbox/dist/broswer";
 
 async function run() {
   const ws = new WorkerSandbox({
@@ -90,7 +92,7 @@ run();
 ```
 
 ```ts
-import { WorkerSandbox } from "js-worker-sandbox/broswer";
+import { WorkerSandbox } from "js-worker-sandbox/dist/broswer";
 
 async function run() {
   const ws = new WorkerSandbox({

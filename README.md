@@ -4,6 +4,8 @@
 
 Node.js's `vm` module allows us to compile and run code within V8 contexts, providing an isolated environment for code execution, also known as a "sandbox". When conducting security research or testing specific code, it's often necessary to evaluate code snippets' behavior without affecting the main system. The `vm` module provides an ideal environment for observing and analyzing code behavior.
 
+> Note: Since version 3.0.0, WorkerSandbox supports browser environment. This feature is still experimental and currently implemented based on `iframe`.
+
 ## Overview
 
 This project uses the `vm` module to create a JavaScript Worker execution sandbox, implementing the following features:
@@ -68,7 +70,7 @@ run();
 ### Browser
 
 ```js
-import { WorkerSandbox } from "js-worker-sandbox/broswer";
+import { WorkerSandbox } from "js-worker-sandbox/dist/broswer";
 
 async function run() {
   const ws = new WorkerSandbox({
@@ -89,7 +91,7 @@ run();
 ```
 
 ```ts
-import { WorkerSandbox } from "js-worker-sandbox/broswer";
+import { WorkerSandbox } from "js-worker-sandbox/dist/broswer";
 
 async function run() {
   const ws = new WorkerSandbox({
