@@ -15,7 +15,7 @@ module.exports = {
     '.eslintrc.js',
     'node_modules',
     'dist',
-    'e2e',
+    'example',
   ],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',

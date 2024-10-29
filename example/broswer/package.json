@@ -1,0 +1,15 @@
+{
+  "name": "js-worker-sandbox-broswer-example",
+  "version": "0.0.1",
+  "author": "tomtomyang@tencent.com",
+  "license": "UNLICENSED",
+  "main": "index.html",
+  "scripts": {
+    "build": "node ./script/build.js",
+    "test": "npm run build && http-server ."
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "http-server": "^14.1.1"
+  }
+}
