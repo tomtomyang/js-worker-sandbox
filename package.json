@@ -35,7 +35,6 @@
   ],
   "scripts": {
     "build": "rimraf ./dist && tsc --rootDir ./src --outDir ./dist",
-    "e2e:node": "node ./e2e/node/run.js && ts-node ./e2e/node/run.ts",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -52,7 +51,6 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.0",
     "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
   },
   "repository": {

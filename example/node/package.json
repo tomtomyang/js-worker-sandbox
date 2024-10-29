@@ -1,0 +1,14 @@
+{
+  "name": "js-worker-sandbox-node-example",
+  "version": "0.0.1",
+  "author": "tomtomyang@tencent.com",
+  "license": "UNLICENSED",
+  "main": "run.js",
+  "scripts": {
+    "test:js": "node ./run.js",
+    "test:ts": "ts-node ./run.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
