@@ -27,7 +27,7 @@ export class WorkerSandbox extends WorkerVM {
       extend: (context) => {
         return {
           ...context,
-          console,
+          // console,
           addEventListener,
         };
       },

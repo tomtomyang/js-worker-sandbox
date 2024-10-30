@@ -52,10 +52,33 @@ export interface VMContext extends Window {
   [key: string]: any;
 }
 
+const needBind = [
+  'fetch',
+  'setTimeout',
+  'clearTimeout',
+  'setInterval',
+  'clearInterval',
+  'requestAnimationFrame',
+  'cancelAnimationFrame',
+  'addEventListener',
+  'removeEventListener',
+  'postMessage',
+  'atob',
+  'btoa',
+  'TextEncoder',
+  'TextDecoder',
+  'WebSocket',
+  'XMLHttpRequest',
+];
+
 export interface VMOptions {
   extend?: (context: VMContext) => VMContext;
 }
-
+/**
+ * TODO:
+ * 1. fecth 跨域问题
+ * 2. timer 不执行问题
+ */
 export class WorkerVM {
   private iframe: HTMLIFrameElement;
   public readonly context: VMContext;
@@ -67,15 +90,19 @@ export class WorkerVM {
 
     let context = this.iframe.contentWindow as VMContext;
 
+    needBind.forEach((api) => {
+      if (typeof context[api] === 'function') {
+        context[api] = context[api].bind(context);
+      }
+    });
+
     context = vmOptions?.extend?.(context) ?? context;
 
     this.context = context;
   }
 
   public evaluate<T = any>(script: string): T {
-    return new Function('with(this) { return ' + script + ' }').call(
-      this.context,
-    );
+    return new Function('with(this) { ' + script + ' }').call(this.context);
   }
 
   public destroy(): void {
