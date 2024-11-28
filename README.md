@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-Node.js's `vm` module allows us to compile and run code within V8 contexts, providing an isolated environment for code execution, also known as a "sandbox". When conducting security research or testing specific code, it's often necessary to evaluate code snippets' behavior without affecting the main system. The `vm` module provides an ideal environment for observing and analyzing code behavior.
-
 > Note: Since version 3.0.0, WorkerSandbox supports browser environment. This feature is still experimental and currently implemented based on `iframe`.
+
+Node.js's `vm` module allows us to compile and run code within V8 contexts, providing an isolated environment for code execution, also known as a "sandbox". When conducting security research or testing specific code, it's often necessary to evaluate code snippets' behavior without affecting the main system. The `vm` module provides an ideal environment for observing and analyzing code behavior.
 
 ## Overview
 

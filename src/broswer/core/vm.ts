@@ -1,3 +1,5 @@
+import WorkerRuntime from '../runtime/index';
+
 export interface VMContext extends Window {
   Array?: typeof Array;
   ArrayBuffer?: typeof ArrayBuffer;
@@ -53,7 +55,6 @@ export interface VMContext extends Window {
 }
 
 const needBind = [
-  'fetch',
   'setTimeout',
   'clearTimeout',
   'setInterval',
@@ -76,7 +77,6 @@ export interface VMOptions {
 }
 /**
  * TODO:
- * 1. fecth 跨域问题
  * 2. timer 不执行问题
  */
 export class WorkerVM {
@@ -95,6 +95,12 @@ export class WorkerVM {
         context[api] = context[api].bind(context);
       }
     });
+
+    (Object.keys(WorkerRuntime) as Array<keyof typeof WorkerRuntime>).forEach(
+      (key) => {
+        context[key] = WorkerRuntime[key].bind(context);
+      },
+    );
 
     context = vmOptions?.extend?.(context) ?? context;
 
