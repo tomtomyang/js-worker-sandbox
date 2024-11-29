@@ -55,10 +55,6 @@ export interface VMContext extends Window {
 }
 
 const needBind = [
-  'setTimeout',
-  'clearTimeout',
-  'setInterval',
-  'clearInterval',
   'requestAnimationFrame',
   'cancelAnimationFrame',
   'addEventListener',
@@ -75,10 +71,7 @@ const needBind = [
 export interface VMOptions {
   extend?: (context: VMContext) => VMContext;
 }
-/**
- * TODO:
- * 2. timer 不执行问题
- */
+
 export class WorkerVM {
   private iframe: HTMLIFrameElement;
   public readonly context: VMContext;
@@ -101,6 +94,31 @@ export class WorkerVM {
         context[key] = WorkerRuntime[key].bind(context);
       },
     );
+
+    context.setTimeout = (
+      handler: TimerHandler,
+      timeout?: number,
+      ...args: any[]
+    ) => {
+      if (typeof handler === 'function') {
+        return window.setTimeout(handler.bind(context), timeout, ...args);
+      }
+      return window.setTimeout(handler, timeout, ...args);
+    };
+
+    context.setInterval = (
+      handler: TimerHandler,
+      timeout?: number,
+      ...args: any[]
+    ) => {
+      if (typeof handler === 'function') {
+        return window.setInterval(handler.bind(context), timeout, ...args);
+      }
+      return window.setInterval(handler, timeout, ...args);
+    };
+
+    context.clearTimeout = window.clearTimeout.bind(window);
+    context.clearInterval = window.clearInterval.bind(window);
 
     context = vmOptions?.extend?.(context) ?? context;
 

@@ -3,14 +3,17 @@ import { WorkerSandbox } from '../../../dist/broswer';
 async function run() {
   const ws = new WorkerSandbox({
     script: `
-addEventListener("fetch", async (event) => {
-  const res = await fetch("https://google.com");
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest());
+})
 
-  console.log(res.status);
-  console.log(await res.text());
-  
-  event.respondWith(new Response("Hello Fetch!"));
-});
+async function handleRequest() {
+  setTimeout(() => {
+    console.log('5 seconds have passed!');
+  }, 5000);
+
+  return new Response('Hello Timer!');
+}
 `,
   });
   
